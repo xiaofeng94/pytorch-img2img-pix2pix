@@ -14,6 +14,7 @@ import os.path
 IMG_EXTENSIONS = [
     '.jpg', '.JPG', '.jpeg', '.JPEG',
     '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
+    '.mat',
 ]
 
 
@@ -32,7 +33,6 @@ def make_dataset(dir):
                 images.append(path)
 
     return images
-
 
 def default_loader(path):
     return Image.open(path).convert('RGB')

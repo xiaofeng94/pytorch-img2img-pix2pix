@@ -15,6 +15,10 @@ def CreateDataset(opt):
         dataset = SingleDataset()
     elif opt.dataset_mode == 'mat':
         from data.mat_dataset import MatDataset
+        dataset = MatDataset()
+    elif opt.dataset_mode == 'singlemat':
+        from data.single_mat_dataset import SingleMatDataset
+        dataset = SingleMatDataset()
     else:
         raise ValueError("Dataset [%s] not recognized." % opt.dataset_mode)
 

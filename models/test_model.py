@@ -4,6 +4,8 @@ import util.util as util
 from .base_model import BaseModel
 from . import networks
 
+import numpy as np
+import torch
 
 class TestModel(BaseModel):
     def name(self):
@@ -13,6 +15,7 @@ class TestModel(BaseModel):
         assert(not opt.isTrain)
         BaseModel.initialize(self, opt)
         self.input_A = self.Tensor(opt.batchSize, opt.input_nc, opt.fineSize, opt.fineSize)
+        self.input_B = None 
 
         self.netG = networks.define_G(opt.input_nc, opt.output_nc,
                                       opt.ngf, opt.which_model_netG,
@@ -25,11 +28,26 @@ class TestModel(BaseModel):
         networks.print_network(self.netG)
         print('-----------------------------------------------')
 
+        self.fineSize = opt.fineSize
+
     def set_input(self, input):
         # we need to use single_dataset mode
+
         input_A = input['A']
         self.input_A.resize_(input_A.size()).copy_(input_A)
         self.image_paths = input['A_paths']
+
+        print('1')
+        print(input['B'].shape)
+        self.input_B = input['B']
+
+    def set_input_array(self, inputArr):
+
+        input_A = torch.Tensor(inputArr.astype(np.float64))
+        input_A.resize_((1, 3, self.fineSize, self.fineSize))
+
+        self.input_A.resize_(input_A.size()).copy_(input_A)
+
 
     def test(self):
         self.real_A = Variable(self.input_A)
@@ -42,4 +60,10 @@ class TestModel(BaseModel):
     def get_current_visuals(self):
         real_A = util.tensor2im(self.real_A.data)
         fake_B = util.tensor2im(self.fake_B.data)
-        return OrderedDict([('real_A', real_A), ('fake_B', fake_B)])
+
+        if self.input_B != None:
+            real_B = self.input_B[0].cpu().float().numpy()
+            real_B = (np.transpose(real_B, (1, 2, 0)) + 1) / 2.0 * 255.0
+            return OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('real_B', real_B.astype(np.uint8))])
+        else:
+            return OrderedDict([('real_A', real_A), ('fake_B', fake_B)])

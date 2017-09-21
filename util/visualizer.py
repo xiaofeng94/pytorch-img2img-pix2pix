@@ -29,6 +29,8 @@ class Visualizer():
 
     # |visuals|: dictionary of images to display or save
     def display_current_results(self, visuals, epoch):
+        transposeIndx = [2, 0, 1] # original for [2, 0, 1]
+
         if self.display_id > 0: # show images in the browser
             if self.display_single_pane_ncols > 0:
                 h, w = next(iter(visuals.values())).shape[:2]
@@ -45,12 +47,12 @@ class Visualizer():
                 idx = 0
                 for label, image_numpy in visuals.items():
                     label_html_row += '<td>%s</td>' % label
-                    images.append(image_numpy.transpose([2, 0, 1]))
+                    images.append(image_numpy.transpose(transposeIndx))
                     idx += 1
                     if idx % ncols == 0:
                         label_html += '<tr>%s</tr>' % label_html_row
                         label_html_row = ''
-                white_image = np.ones_like(image_numpy.transpose([2, 0, 1]))*255
+                white_image = np.ones_like(image_numpy.transpose(transposeIndx))*255
                 while idx % ncols != 0:
                     images.append(white_image)
                     label_html_row += '<td></td>'
@@ -67,7 +69,7 @@ class Visualizer():
                 idx = 1
                 for label, image_numpy in visuals.items():
                     #image_numpy = np.flipud(image_numpy)
-                    self.vis.image(image_numpy.transpose([2,0,1]), opts=dict(title=label),
+                    self.vis.image(image_numpy.transpose(transposeIndx), opts=dict(title=label),
                                        win=self.display_id + idx)
                     idx += 1
 
