@@ -9,6 +9,7 @@ from pdb import set_trace as st
 import scipy.io as sio
 import random
 import numpy as np
+from PIL import Image
 
 class MatDataset(BaseDataset):
     def initialize(self, opt):
@@ -22,6 +23,8 @@ class MatDataset(BaseDataset):
 
         self.fineSize = opt.fineSize
         self.osize = opt.loadSize
+        self.transform = get_transform(opt)
+        self.phase = opt.phase
 
     def __getitem__(self, index):
         dataPath = self.data_paths[index % self.size]
@@ -32,7 +35,12 @@ class MatDataset(BaseDataset):
         depth = data['depth'][0,0]
 
         # crop image to fineSize(256 for default)
-        offset = random.randint(0, self.osize-self.fineSize)
+        offset = 0
+        if self.phase == 'train':
+            offset = random.randint(0, self.osize-self.fineSize)
+        else:
+            offset = int(np.floor((self.osize - self.fineSize)/2))
+
         rgb_crop = rgb[offset:offset+self.fineSize, offset:offset+self.fineSize, :]
         depth_crop = depth[offset:offset+self.fineSize, offset:offset+self.fineSize]
 
@@ -42,12 +50,14 @@ class MatDataset(BaseDataset):
         depth_final[:,:,1] = depth_crop
         depth_final[:,:,2] = depth_crop
 
-        rgb_fianl = rgb_crop.transpose((2, 0, 1))
+        # rgb_final = rgb_crop.transpose((2, 0, 1))
+        rgb_temp = Image.fromarray(rgb_crop.astype('uint8'),'RGB')
+        rgb_final = self.transform(rgb_temp)
         depth_final = depth_final.transpose((2, 0, 1))
 
         # numpy.array(PIL.Image.open('xxx').convert('RGB')) can handle image directly
 
-        return {'A': rgb_fianl, 'B': depth_final,
+        return {'A': rgb_final, 'B': depth_final,
                 'A_paths': dataPath, 'B_paths': dataPath}
 
     def __len__(self):

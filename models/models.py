@@ -11,7 +11,7 @@ def create_model(opt):
         from .pix2pix_model import Pix2PixModel
         model = Pix2PixModel()
     elif opt.model == 'test':
-        assert(opt.dataset_mode == 'single' or opt.dataset_mode == 'singlemat')
+        assert(opt.dataset_mode == 'single' or opt.dataset_mode == 'singlemat' or opt.dataset_mode == 'mat')
         from .test_model import TestModel
         model = TestModel()
     elif opt.model == 'depth_pix2pix':

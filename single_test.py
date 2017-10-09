@@ -20,17 +20,24 @@ model = create_model(opt)
 
 dataset = iter(dataset)
 images = dataset.next()
-
-print(images['A_paths'])
 A_arr = images['A'].resize_(3,256,256).numpy()
-print(A_arr.shape)
 
 model.set_input_array(A_arr)
-model.test()
-visuals = model.get_current_visuals()
+result = model.test()
+print(result)
 
-resultImg = visuals['fake_B']
+import math
+from PIL import Image
+dpBais = math.log10(0.8);
+dpScale = math.log10(655) - dpBais;
+result_r = 10**(dpScale*result + dpBais)
+print(result_r)
 
+# resultImg = Image.fromarray(result_r)
+# resultImg.show()
+
+# visuals = model.get_current_visuals()
+# resultImg = visuals['fake_B']
 # from PIL import Image
 # resultImg=Image.fromarray(resultImg)
 # resultImg.show()

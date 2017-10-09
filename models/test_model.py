@@ -37,8 +37,8 @@ class TestModel(BaseModel):
         self.input_A.resize_(input_A.size()).copy_(input_A)
         self.image_paths = input['A_paths']
 
-        print('1')
-        print(input['B'].shape)
+        # print('1')
+        # print(input['B'].shape)
         self.input_B = input['B']
 
     def set_input_array(self, inputArr):
@@ -52,6 +52,8 @@ class TestModel(BaseModel):
     def test(self):
         self.real_A = Variable(self.input_A)
         self.fake_B = self.netG.forward(self.real_A)
+
+        return self.fake_B.data[0].cpu().float().numpy()
 
     # get image paths
     def get_image_paths(self):
