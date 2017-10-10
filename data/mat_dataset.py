@@ -55,14 +55,16 @@ class MatDataset(BaseDataset):
                 rgb_crop = np.fliplr(rgb_crop)
                 depth_crop = np.fliplr(depth_crop)
 
+        depth_final = np.ones((1,self.fineSize, self.fineSize))
+        depth_final[0] = np.abs(depth_crop)
         # fill depth values in all channels
-        depth_final = np.ones((self.fineSize, self.fineSize, 3))
-        depth_final[:,:,0] = depth_crop
-        depth_final[:,:,1] = depth_crop
-        depth_final[:,:,2] = depth_crop
+        # depth_final = np.ones((self.fineSize, self.fineSize, 3))
+        # depth_final[:,:,0] = depth_crop
+        # depth_final[:,:,1] = depth_crop
+        # depth_final[:,:,2] = depth_crop
+        # depth_final = depth_final.transpose((2, 0, 1))
 
         rgb_final = np.abs(rgb_crop).transpose((2, 0, 1))
-        depth_final = depth_final.transpose((2, 0, 1))
         # rgb_temp = Image.fromarray(rgb_crop.astype('uint8'),'RGB')
         # rgb_visual = self.transform(rgb_temp) # only for visual view
         rgb_visual = np.abs(rgb_crop)

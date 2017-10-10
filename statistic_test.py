@@ -48,8 +48,10 @@ for i, data in enumerate(dataset):
     depth_real = 10**(dpScale*depth_gt + dpBais)
 
     model.set_input(data)
-    result = model.test().transpose([1,2,0])
-    pred_depth = np.sum(result,2)/3
+    # result = model.test().transpose([1,2,0])
+    # pred_depth = np.sum(result,2)/3
+    pred_depth = model.test()
+
     pred_depth_real = 10**(dpScale*pred_depth + dpBais)
 
     # if i == 0:

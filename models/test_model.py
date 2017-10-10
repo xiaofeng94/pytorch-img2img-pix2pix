@@ -61,12 +61,18 @@ class TestModel(BaseModel):
         return self.image_paths
 
     def get_current_visuals(self):
-        real_A = util.tensor2im(self.real_A.data)
+        real_A = self.real_A.data[0].cpu().float().numpy().transpose((1, 2, 0))
         fake_B = util.tensor2im(self.fake_B.data)
 
-        if self.input_B != None:
-            real_B = self.input_B[0].cpu().float().numpy()
-            real_B = (np.transpose(real_B, (1, 2, 0)) + 1) / 2.0 * 255.0
-            return OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('real_B', real_B.astype(np.uint8))])
-        else:
-            return OrderedDict([('real_A', real_A), ('fake_B', fake_B)])
+        real_B = self.input_B[0].cpu().float().numpy()*255
+        # real_B = (np.transpose(real_B, (1, 2, 0)) + 1) / 2.0 * 255.0
+        return OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('real_B', real_B.astype(np.uint8))])
+
+        # if self.input_B != None:
+        #     print('real_B exists')
+        #     real_B = self.input_B[0].cpu().float().numpy()
+        #     # real_B = (np.transpose(real_B, (1, 2, 0)) + 1) / 2.0 * 255.0
+        #     return OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('real_B', real_B.astype(np.uint8))])
+        # else:
+        #     print('No real_B...')
+        #     return OrderedDict([('real_A', real_A), ('fake_B', fake_B)])

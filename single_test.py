@@ -12,6 +12,7 @@ opt.nThreads = 1   # test code only supports nThreads = 1
 opt.batchSize = 1  # test code only supports batchSize = 1
 opt.serial_batches = True  # no shuffle
 opt.no_flip = True  # no flip
+opt.output_nc = 1
 
 data_loader = CreateDataLoader(opt)
 dataset = data_loader.load_data()
@@ -19,22 +20,40 @@ model = create_model(opt)
 # visualizer = Visualizer(opt)
 
 dataset = iter(dataset)
+test_indx = 5
+for i in range(0,test_indx-1):
+    dataset.next()
 images = dataset.next()
-A_arr = images['A'].resize_(3,256,256).numpy()
+# A_arr = images['A'].resize_(3,256,256).numpy()
 
-model.set_input_array(A_arr)
+model.set_input(images)
 result = model.test()
-print(result)
+# print(result)
 
 import math
 from PIL import Image
-dpBais = math.log10(0.8);
-dpScale = math.log10(655) - dpBais;
-result_r = 10**(dpScale*result + dpBais)
-print(result_r)
+import numpy as np
+# dpBais = math.log10(0.8);
+# dpScale = math.log10(655) - dpBais;
+# result_r = 10**(dpScale*result + dpBais)
+# print(result_r)
 
-# resultImg = Image.fromarray(result_r)
-# resultImg.show()
+visuals = model.get_current_visuals()
+real_A = visuals['real_A']
+fake_B = visuals['fake_B']
+real_B = visuals['real_B']
+
+realImg = Image.fromarray(real_A.astype('uint8'),'RGB')
+realImg.show()
+
+resultImg = Image.fromarray(fake_B,'RGB')
+resultImg.show()
+
+
+gtDepth = np.tile(real_B, (3, 1, 1))
+# print(gtDepth)
+gtdepthImg = Image.fromarray(gtDepth.transpose([1,2,0]),'RGB')
+gtdepthImg.show()
 
 # visuals = model.get_current_visuals()
 # resultImg = visuals['fake_B']
