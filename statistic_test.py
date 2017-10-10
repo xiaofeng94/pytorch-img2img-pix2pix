@@ -102,7 +102,7 @@ thrAcc1 = thrCount1/pointsNum
 thrAcc2 = thrCount2/pointsNum
 thrAcc3 = thrCount3/pointsNum
 
-print ('rel: {}\nrms: {}\nlog10Err: {}\nthr1: {}\nthr2: {}\nthr3: {}'.format(rel,rms,log10Err,thrAcc1,thrAcc2,thrAcc3))
+print ('rel: {}\nlog10Err: {}\nrms: {}\nthr1: {}\nthr2: {}\nthr3: {}'.format(rel,log10Err,rms,thrAcc1,thrAcc2,thrAcc3))
 # dataset = iter(dataset)
 # images = dataset.next()
 # A_arr = images['A'].resize_(3,256,256).numpy()

@@ -1,0 +1,1 @@
+python train.py --dataroot ./datasets/SYNTHIA_RAND --name sysnthia_pix2pix --model depth_pix2pix --which_model_netG unet_256 --which_direction AtoB --lambda_A 100 --dataset_mode mat --no_lsgan --norm batch --no_flip

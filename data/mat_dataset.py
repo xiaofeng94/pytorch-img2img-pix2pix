@@ -23,8 +23,14 @@ class MatDataset(BaseDataset):
 
         self.fineSize = opt.fineSize
         self.osize = opt.loadSize
-        self.transform = get_transform(opt)
+
+        transform_list = []
+        transform_list += [transforms.ToTensor(),
+                       transforms.Normalize((0.5, 0.5, 0.5),
+                                            (0.5, 0.5, 0.5))]
+        self.transform = transforms.Compose(transform_list)
         self.phase = opt.phase
+        self.isFlip = opt.isTrain and not opt.no_flip
 
     def __getitem__(self, index):
         dataPath = self.data_paths[index % self.size]
@@ -43,6 +49,11 @@ class MatDataset(BaseDataset):
 
         rgb_crop = rgb[offset:offset+self.fineSize, offset:offset+self.fineSize, :]
         depth_crop = depth[offset:offset+self.fineSize, offset:offset+self.fineSize]
+        if self.isFlip:
+            flipFlag = random.randint(0, 1)
+            if flipFlag < 1:
+                rgb_crop = np.fliplr(rgb_crop)
+                depth_crop = np.fliplr(depth_crop)
 
         # fill depth values in all channels
         depth_final = np.ones((self.fineSize, self.fineSize, 3))
@@ -50,14 +61,15 @@ class MatDataset(BaseDataset):
         depth_final[:,:,1] = depth_crop
         depth_final[:,:,2] = depth_crop
 
-        # rgb_final = rgb_crop.transpose((2, 0, 1))
-        rgb_temp = Image.fromarray(rgb_crop.astype('uint8'),'RGB')
-        rgb_final = self.transform(rgb_temp)
+        rgb_final = np.abs(rgb_crop).transpose((2, 0, 1))
         depth_final = depth_final.transpose((2, 0, 1))
+        # rgb_temp = Image.fromarray(rgb_crop.astype('uint8'),'RGB')
+        # rgb_visual = self.transform(rgb_temp) # only for visual view
+        rgb_visual = np.abs(rgb_crop)
 
         # numpy.array(PIL.Image.open('xxx').convert('RGB')) can handle image directly
 
-        return {'A': rgb_final, 'B': depth_final,
+        return {'A': rgb_final, 'B': depth_final, 'C':rgb_visual,
                 'A_paths': dataPath, 'B_paths': dataPath}
 
     def __len__(self):

@@ -61,6 +61,8 @@ class Pix2PixModel(BaseModel):
         self.input_A.resize_(input_A.size()).copy_(input_A)
         self.input_B.resize_(input_B.size()).copy_(input_B)
         self.image_paths = input['A_paths' if AtoB else 'B_paths']
+        # only for viusal
+        self.visual_A = input['C']
 
     def forward(self):
         self.real_A = Variable(self.input_A)
@@ -126,10 +128,12 @@ class Pix2PixModel(BaseModel):
                             ])
 
     def get_current_visuals(self):
-        real_A = util.tensor2im(self.real_A.data)
+        # real_A = util.tensor2im(self.real_A.data)
         fake_B = util.tensor2im(self.fake_B.data)
         real_B = util.tensor2im(self.real_B.data)
-        return OrderedDict([('real_A', real_A), ('fake_B', fake_B), ('real_B', real_B)])
+        visual_A = self.visual_A[0].cpu().float().numpy().astype(np.uint8)
+        # return OrderedDict([('real_A', real_A), ('visual_A', visual_A),('fake_B', fake_B), ('real_B', real_B)])
+        return OrderedDict([('visual_A', visual_A),('fake_B', fake_B), ('real_B', real_B)])
 
     def save(self, label):
         self.save_network(self.netG, 'G', label, self.gpu_ids)

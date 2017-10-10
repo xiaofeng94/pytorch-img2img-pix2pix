@@ -1,0 +1,19 @@
+训练开始时先运行 python -m visdom.server
+可视化图表： http://localhost:8097
+train synthia:
+python train.py --dataroot ./datasets/SYNTHIA_RAND/ --name synthia_pix2pix --model depth_pix2pix --which_model_netG unet_256 --which_direction AtoB --lambda_A 100 --dataset_mode mat --no_lsgan --norm batch --save_epoch_freq 10
+
+test synthia:
+python statistic_test.py --dataroot ./datasets/SYNTHIA_RAND/ --name synthia_pix2pix --model test --which_model_netG unet_256 --which_direction AtoB --dataset_mode mat --norm batch
+
+test sysnthia:
+python statistic_test.py --dataroot ./datasets/SYNTHIA_RAND/ --name sysnthia_pix2pix --model test --which_model_netG unet_256 --which_direction AtoB --dataset_mode mat --norm batch
+
+train gtav:
+python train.py --dataroot /media/xiaofeng/learning/MyGTAVData/Dataset --name gtav_pix2pix --model depth_pix2pix --which_model_netG unet_256 --which_direction AtoB --lambda_A 100 --dataset_mode mat --no_lsgan --norm batch --save_epoch_freq 10
+
+train make3d:
+python train.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name make3d_pix2pix_withNorm --model depth_pix2pix --which_model_netG unet_256 --which_direction AtoB --lambda_A 100 --dataset_mode mat --no_lsgan --norm batch --save_epoch_freq 50 --niter 200 --niter_decay 200
+
+test make3d:
+python statistic_test.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name make3d_pix2pix --model test --which_model_netG unet_256 --which_direction AtoB --dataset_mode mat --norm batch
