@@ -53,6 +53,9 @@ class BaseModel():
         print('save path: %s'%save_path)
 
         network.load_state_dict(torch.load(save_path))
-
-    def update_learning_rate():
-        pass
+    # update learning rate (called once every epoch)
+    def update_learning_rate(self):
+        for scheduler in self.schedulers:
+            scheduler.step()
+        lr = self.optimizers[0].param_groups[0]['lr']
+        print('learning rate = %.7f' % lr)

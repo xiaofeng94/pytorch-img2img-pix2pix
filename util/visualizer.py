@@ -4,7 +4,7 @@ import ntpath
 import time
 from . import util
 from . import html
-
+from pdb import set_trace as st
 class Visualizer():
     def __init__(self, opt):
         # self.opt = opt
