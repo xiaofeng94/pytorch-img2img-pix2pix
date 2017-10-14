@@ -16,4 +16,4 @@ train make3d:
 python train.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name make3d_pix2pix_withNorm --model depth_pix2pix --which_model_netG unet_256 --which_direction AtoB --lambda_A 100 --dataset_mode mat --no_lsgan --norm batch --save_epoch_freq 50 --niter 200 --niter_decay 200
 
 test make3d:
-python statistic_test.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name make3d_pix2pix --model test --which_model_netG unet_256 --which_direction AtoB --dataset_mode mat --norm batch
+python statistic_test.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name make3d_pix2pix --model test --which_model_netG unet_256 --which_direction AtoB --dataset_mode mat --norm batch --output_nc 1

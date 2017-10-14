@@ -68,6 +68,14 @@ for i, data in enumerate(dataset):
     # compute measures
     elementNum = depth_real.size
     curr_rel = np.sum(np.abs(pred_depth_real-depth_real)/depth_real)/elementNum
+    print(curr_rel)
+    # if i == 0:
+    #     print(pred_depth_real-depth_real)
+    #     print(depth_real)
+    #     temp = np.abs(pred_depth_real-depth_real)/depth_real
+    #     print(temp)
+    #     print(np.max(temp))
+    #     print(curr_rel)
     # temp = (pred_depth_real-depth_real)**2
     # print(temp.shape)
     # print(temp)

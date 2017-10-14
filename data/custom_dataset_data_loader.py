@@ -19,6 +19,9 @@ def CreateDataset(opt):
     elif opt.dataset_mode == 'singlemat':
         from data.single_mat_dataset import SingleMatDataset
         dataset = SingleMatDataset()
+    elif opt.dataset_mode == 'superpix':
+        from data.superpix_dataset import SuperPixDataset
+        dataset = SuperPixDataset()
     else:
         raise ValueError("Dataset [%s] not recognized." % opt.dataset_mode)
 

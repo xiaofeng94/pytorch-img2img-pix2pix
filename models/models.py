@@ -18,6 +18,10 @@ def create_model(opt):
         assert(opt.dataset_mode == 'mat')
         from .pix2pix_model import Pix2PixModel
         model = Pix2PixModel()
+    elif opt.model == 'cnn_depth':
+        assert(opt.dataset_mode == 'superpix')
+        from .cnn_depth_model import CNNDepthModel
+        model = CNNDepthModel()
     else:
         raise ValueError("Model [%s] not recognized." % opt.model)
     model.initialize(opt)

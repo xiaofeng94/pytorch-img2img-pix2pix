@@ -5,6 +5,8 @@ import functools
 from torch.autograd import Variable
 from torch.optim import lr_scheduler
 import numpy as np
+
+from collections import OrderedDict
 ###############################################################################
 # Functions
 ###############################################################################
@@ -432,3 +434,50 @@ class NLayerDiscriminator(nn.Module):
             return nn.parallel.data_parallel(self.model, input, self.gpu_ids)
         else:
             return self.model(input)
+
+class Conv5Fc4Net(nn.Module):
+    def __init__(self, input_nc):
+        super(Conv5Fc4Net, self).__init__()
+        convOutput = 256
+        convPart = nn.Sequential(OrderedDict([
+                ('conv1', nn.Conv2d(input_nc, 64, kernel_size=11, padding=5)),
+                ('relu1', nn.ReLU()),
+                ('pool1', nn.MaxPool2d(kernel_size=2, stride=2)),
+                ('conv2', nn.Conv2d(64, 256, kernel_size=5, padding=2)),
+                ('relu2', nn.ReLU()),
+                ('pool2', nn.MaxPool2d(kernel_size=2, stride=2)),
+                ('conv3', nn.Conv2d(256, 256, kernel_size=3, padding=1)),
+                ('relu3', nn.ReLU()),
+                ('conv4', nn.Conv2d(256, 256, kernel_size=3, padding=1)),
+                ('relu4', nn.ReLU()),
+                ('conv5', nn.Conv2d(256, convOutput, kernel_size=3, padding=1)),
+                ('relu5', nn.ReLU()),
+                ('pool3', nn.MaxPool2d(kernel_size=2, stride=2)),
+            ]))
+        fcPart = nn.Sequential(OrderedDict([
+                ('fc6', nn.Linear(14*14*convOutput, 4096)),
+                ('relu6', nn.ReLU(inplace=True)),
+                ('drop6', nn.Dropout()),
+                ('fc7', nn.Linear(4096, 128)),
+                ('relu7', nn.ReLU(inplace=True)),
+                ('fc8', nn.Linear(128, 16)),
+                ('relu8', nn.ReLU(inplace=True)),
+                ('fc9', nn.Linear(16, 1)),
+                ('sig9', nn.Sigmoid())
+            ]))
+
+        self.netConv = nn.Sequential(*convPart)
+        self.netFC = nn.Sequential(*fcPart)
+
+    def forward(self, input):
+        x = self.netConv(input)
+        x = x.view(-1, self.num_flat_features(x))
+        x = self.netFC(x)
+        return x
+
+    def num_flat_features(self, x):
+        size = x.size()[1:]  # all dimensions except the batch dimension
+        num_features = 1
+        for s in size:
+            num_features *= s
+        return num_features

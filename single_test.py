@@ -20,7 +20,7 @@ model = create_model(opt)
 # visualizer = Visualizer(opt)
 
 dataset = iter(dataset)
-test_indx = 5
+test_indx = 9
 for i in range(0,test_indx-1):
     dataset.next()
 images = dataset.next()
