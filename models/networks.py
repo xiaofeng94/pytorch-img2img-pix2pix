@@ -7,6 +7,7 @@ from torch.optim import lr_scheduler
 import numpy as np
 
 from collections import OrderedDict
+import torch.nn.functional as nnF
 ###############################################################################
 # Functions
 ###############################################################################
@@ -439,40 +440,105 @@ class Conv5Fc4Net(nn.Module):
     def __init__(self, input_nc):
         super(Conv5Fc4Net, self).__init__()
         convOutput = 256
-        convPart = nn.Sequential(OrderedDict([
-                ('conv1', nn.Conv2d(input_nc, 64, kernel_size=11, padding=5)),
-                ('relu1', nn.ReLU()),
-                ('pool1', nn.MaxPool2d(kernel_size=2, stride=2)),
-                ('conv2', nn.Conv2d(64, 256, kernel_size=5, padding=2)),
-                ('relu2', nn.ReLU()),
-                ('pool2', nn.MaxPool2d(kernel_size=2, stride=2)),
-                ('conv3', nn.Conv2d(256, 256, kernel_size=3, padding=1)),
-                ('relu3', nn.ReLU()),
-                ('conv4', nn.Conv2d(256, 256, kernel_size=3, padding=1)),
-                ('relu4', nn.ReLU()),
-                ('conv5', nn.Conv2d(256, convOutput, kernel_size=3, padding=1)),
-                ('relu5', nn.ReLU()),
-                ('pool3', nn.MaxPool2d(kernel_size=2, stride=2)),
-            ]))
-        fcPart = nn.Sequential(OrderedDict([
-                ('fc6', nn.Linear(14*14*convOutput, 4096)),
-                ('relu6', nn.ReLU(inplace=True)),
-                ('drop6', nn.Dropout()),
-                ('fc7', nn.Linear(4096, 128)),
-                ('relu7', nn.ReLU(inplace=True)),
-                ('fc8', nn.Linear(128, 16)),
-                ('relu8', nn.ReLU(inplace=True)),
-                ('fc9', nn.Linear(16, 1)),
-                ('sig9', nn.Sigmoid())
-            ]))
+        self.conv1 = nn.Conv2d(input_nc, 64, kernel_size=11, padding=5)
+        self.conv2 = nn.Conv2d(64, 256, kernel_size=5, padding=2)
+        self.conv3 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+        self.conv4 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+        self.conv5 = nn.Conv2d(256, convOutput, kernel_size=3, padding=1)
 
-        self.netConv = nn.Sequential(*convPart)
-        self.netFC = nn.Sequential(*fcPart)
+        self.fc6 = nn.Linear(14*14*convOutput, 4096)
+        self.drop6 = nn.Dropout()
+        self.fc7 = nn.Linear(4096, 128)
+        self.fc8 = nn.Linear(128, 16)
+        self.fc9 = nn.Linear(16, 1)
+        self.sig = nn.Sigmoid()
+
+        #initialize parameters
+        norm_std = 0.01
+        nn.init.normal(self.conv1.weight, std=norm_std)
+        nn.init.normal(self.conv2.weight, std=norm_std)
+        nn.init.normal(self.conv3.weight, std=norm_std)
+        nn.init.normal(self.conv4.weight, std=norm_std)
+        nn.init.normal(self.conv5.weight, std=norm_std)
+
+        nn.init.normal(self.fc6.weight, std=norm_std)
+        nn.init.normal(self.fc7.weight, std=norm_std)
+        nn.init.normal(self.fc8.weight, std=norm_std)
+        nn.init.normal(self.fc9.weight, std=norm_std)
+
+        constant_val = 0.1
+        nn.init.constant(self.conv1.bias, constant_val)
+        nn.init.normal(self.conv2.bias, constant_val)
+        nn.init.normal(self.conv3.bias, constant_val)
+        nn.init.normal(self.conv4.bias, constant_val)
+        nn.init.normal(self.conv5.bias, constant_val)
+
+        nn.init.normal(self.fc6.bias, constant_val)
+        nn.init.normal(self.fc7.bias, constant_val)
+        nn.init.normal(self.fc8.bias, constant_val)
+        nn.init.normal(self.fc9.bias, constant_val)
+
+
+        # convPart = nn.Sequential(OrderedDict([
+        #         ('conv1', nn.Conv2d(input_nc, 64, kernel_size=11, padding=5)),
+        #         ('relu1', nn.ReLU()),
+        #         ('pool1', nn.MaxPool2d(kernel_size=2, stride=2)),
+        #         ('conv2', nn.Conv2d(64, 256, kernel_size=5, padding=2)),
+        #         ('relu2', nn.ReLU()),
+        #         ('pool2', nn.MaxPool2d(kernel_size=2, stride=2)),
+        #         ('conv3', nn.Conv2d(256, 256, kernel_size=3, padding=1)),
+        #         ('relu3', nn.ReLU()),
+        #         ('conv4', nn.Conv2d(256, 256, kernel_size=3, padding=1)),
+        #         ('relu4', nn.ReLU()),
+        #         ('conv5', nn.Conv2d(256, convOutput, kernel_size=3, padding=1)),
+        #         ('relu5', nn.ReLU()),
+        #         ('pool3', nn.MaxPool2d(kernel_size=2, stride=2)),
+        #     ]))
+        # fcPart = nn.Sequential(OrderedDict([
+        #         ('fc6', nn.Linear(14*14*convOutput, 4096)),
+        #         ('relu6', nn.ReLU(inplace=True)),
+        #         ('drop6', nn.Dropout()),
+        #         ('fc7', nn.Linear(4096, 128)),
+        #         ('relu7', nn.ReLU(inplace=True)),
+        #         ('fc8', nn.Linear(128, 16)),
+        #         ('relu8', nn.ReLU(inplace=True)),
+        #         ('fc9', nn.Linear(16, 1)),
+        #         ('sig9', nn.Sigmoid())
+        #     ]))
+
+        # self.netConv = nn.Sequential(*convPart)
+        # self.netFC = nn.Sequential(*fcPart)
+
 
     def forward(self, input):
-        x = self.netConv(input)
+        print('########## start')
+        print(input)
+        print('------conv')
+        x = nnF.max_pool2d(nnF.relu(self.conv1(input)), (2,2))
+        x = nnF.max_pool2d(nnF.relu(self.conv2(x)), (2,2))
+        x = nnF.relu(self.conv3(x))
+        x = nnF.relu(self.conv4(x))
+        x = nnF.max_pool2d(nnF.relu(self.conv5(x)), (2,2))
+        print(x)
+        print('------flatten')
         x = x.view(-1, self.num_flat_features(x))
-        x = self.netFC(x)
+        print(x)
+        print('-------6')
+        x = self.drop6(nnF.relu(self.fc6(x)))
+        print(x)
+        print('-------7')
+        x = nnF.relu(self.fc7(x))
+        print(x)
+        print('-------8')
+        x = nnF.relu(self.fc8(x))
+        print(x)
+        print('-------9')
+        x = nnF.relu(self.fc9(x))
+        print(x)
+        print('-------sig')
+        x = self.sig(x)
+        print(x)
+        print('########## end')
         return x
 
     def num_flat_features(self, x):

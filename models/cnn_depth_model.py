@@ -49,6 +49,8 @@ class CNNDepthModel(BaseModel):
         print('---------- Networks initialized -------------')
         networks.print_network(self.net)
         print('-----------------------------------------------')
+        self.parmas = list(self.net.parameters())
+        print('len(self.parmas): {}'.format(len(self.parmas)))
 
     def set_input(self, input):
         input_A = input['A']
@@ -69,6 +71,12 @@ class CNNDepthModel(BaseModel):
     def backward(self):
         self.loss = self.criterion(self.depth_pred, self.real_B)
         self.loss.backward()
+        print(self.depth_pred)
+        print('---------')
+        print(self.real_B)
+        print('------------------------------')
+        print(self.parmas[16].grad)
+
 
     # no backprop gradients
     def test(self):
@@ -83,7 +91,7 @@ class CNNDepthModel(BaseModel):
         self.forward()
 
         self.optimizer.zero_grad()
-        self.backward()
+        self.backward()        
         self.optimizer.step()
 
     def get_current_errors(self):

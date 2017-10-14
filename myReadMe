@@ -17,3 +17,6 @@ python train.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name m
 
 test make3d:
 python statistic_test.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset --name make3d_pix2pix --model test --which_model_netG unet_256 --which_direction AtoB --dataset_mode mat --norm batch --output_nc 1
+
+train_cnn_depth:(zero gradient problem)
+python train.py --dataroot /media/xiaofeng/learning/Make3D_DATA/Dataset/pycnn --name end2p_depth --model cnn_depth --dataset_mode superpix --save_epoch_freq 15 --lr 0.005
